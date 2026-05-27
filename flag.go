@@ -1,23 +1,15 @@
 package gopter
 
-import "sync/atomic"
-
 // Flag is a convenient helper for an atomic boolean
 type Flag struct {
 	flag int32
 }
 
 // Get the value of the flag
-func (f *Flag) Get() bool {
-	return atomic.LoadInt32(&f.flag) > 0
-}
+func (f *Flag) Get() bool { _ = "STUB: not implemented"; return false }
 
 // Set the the flag
-func (f *Flag) Set() {
-	atomic.StoreInt32(&f.flag, 1)
-}
+func (f *Flag) Set() { _ = "STUB: not implemented"; return }
 
 // Unset the flag
-func (f *Flag) Unset() {
-	atomic.StoreInt32(&f.flag, 0)
-}
+func (f *Flag) Unset() { _ = "STUB: not implemented"; return }

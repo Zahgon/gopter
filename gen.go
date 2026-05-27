@@ -1,7 +1,6 @@
 package gopter
 
 import (
-	"fmt"
 	"reflect"
 )
 
@@ -24,19 +23,11 @@ var (
 
 // Sample generate a sample value.
 // Depending on the state of the RNG the generate might fail to provide a sample
-func (g Gen) Sample() (interface{}, bool) {
-	return g(DefaultGenParameters()).Retrieve()
-}
+func (g Gen) Sample() (interface{}, bool) { _ = "STUB: not implemented"; return nil, false }
 
 // WithLabel adds a label to a generated value.
 // Labels are usually used for reporting for the arguments of a property check.
-func (g Gen) WithLabel(label string) Gen {
-	return func(genParams *GenParameters) *GenResult {
-		result := g(genParams)
-		result.Labels = append(result.Labels, label)
-		return result
-	}
-}
+func (g Gen) WithLabel(label string) Gen { _ = "STUB: not implemented"; return *new(Gen) }
 
 // SuchThat creates a derived generator by adding a sieve.
 // f: has to be a function with one parameter (matching the generated value) returning a bool.
@@ -46,164 +37,23 @@ func (g Gen) WithLabel(label string) Gen {
 //
 // Use with care, if the sieve is too fine the generator will have many misses which
 // results in an undecided property.
-func (g Gen) SuchThat(f interface{}) Gen {
-	checkVal := reflect.ValueOf(f)
-	checkType := checkVal.Type()
-
-	if checkVal.Kind() != reflect.Func {
-		panic(fmt.Sprintf("Param of SuchThat has to be a func, but is %v", checkType.Kind()))
-	}
-	if checkType.NumIn() != 1 {
-		panic(fmt.Sprintf("Param of SuchThat has to be a func with one param, but is %v", checkType.NumIn()))
-	} else {
-		genResultType := g(MinGenParams).ResultType
-		if !genResultType.AssignableTo(checkType.In(0)) {
-			panic(fmt.Sprintf("Param of SuchThat has to be a func with one param assignable to %v, but is %v", genResultType, checkType.In(0)))
-		}
-	}
-	if checkType.NumOut() != 1 {
-		panic(fmt.Sprintf("Param of SuchThat has to be a func with one return value, but is %v", checkType.NumOut()))
-	} else if checkType.Out(0).Kind() != reflect.Bool {
-		panic(fmt.Sprintf("Param of SuchThat has to be a func with one return value of bool, but is %v", checkType.Out(0).Kind()))
-	}
-	sieve := func(v interface{}) bool {
-		valueOf := reflect.ValueOf(v)
-		if !valueOf.IsValid() {
-			return false
-		}
-		return checkVal.Call([]reflect.Value{valueOf})[0].Bool()
-	}
-
-	return func(genParams *GenParameters) *GenResult {
-		result := g(genParams)
-		prevSieve := result.Sieve
-		if prevSieve == nil {
-			result.Sieve = sieve
-		} else {
-			result.Sieve = func(value interface{}) bool {
-				return prevSieve(value) && sieve(value)
-			}
-		}
-		return result
-	}
-}
+func (g Gen) SuchThat(f interface{}) Gen { _ = "STUB: not implemented"; return *new(Gen) }
 
 // WithShrinker creates a derived generator with a specific shrinker
-func (g Gen) WithShrinker(shrinker Shrinker) Gen {
-	return func(genParams *GenParameters) *GenResult {
-		result := g(genParams)
-		if shrinker == nil {
-			result.Shrinker = NoShrinker
-		} else {
-			result.Shrinker = shrinker
-		}
-		return result
-	}
-}
+func (g Gen) WithShrinker(shrinker Shrinker) Gen { _ = "STUB: not implemented"; return *new(Gen) }
 
 // Map creates a derived generator by mapping all generated values with a given function.
 // f: has to be a function with one parameter (matching the generated value) and a single return.
 // Note: The derived generator will not have a sieve or shrinker unless you are mapping to the same type
 // Note: The mapping function may have a second parameter "*GenParameters"
 // Note: The first parameter of the mapping function and its return may be a *GenResult (this makes MapResult obsolete)
-func (g Gen) Map(f interface{}) Gen {
-	mapperVal := reflect.ValueOf(f)
-	mapperType := mapperVal.Type()
-	needsGenParameters := false
-	genResultInput := false
-	genResultOutput := false
-
-	if mapperVal.Kind() != reflect.Func {
-		panic(fmt.Sprintf("Param of Map has to be a func, but is %v", mapperType.Kind()))
-	}
-	if mapperType.NumIn() != 1 && mapperType.NumIn() != 2 {
-		panic(fmt.Sprintf("Param of Map has to be a func with one or two params, but is %v", mapperType.NumIn()))
-	} else {
-		if mapperType.NumIn() == 2 {
-			if !reflect.TypeOf(&GenParameters{}).AssignableTo(mapperType.In(1)) {
-				panic("Second parameter of mapper function has to be a *GenParameters")
-			}
-			needsGenParameters = true
-		}
-		genResultType := g(MinGenParams).ResultType
-		if reflect.TypeOf(&GenResult{}).AssignableTo(mapperType.In(0)) {
-			genResultInput = true
-		} else if !genResultType.AssignableTo(mapperType.In(0)) {
-			panic(fmt.Sprintf("Param of Map has to be a func with one param assignable to %v, but is %v", genResultType, mapperType.In(0)))
-		}
-	}
-	if mapperType.NumOut() != 1 {
-		panic(fmt.Sprintf("Param of Map has to be a func with one return value, but is %v", mapperType.NumOut()))
-	} else if reflect.TypeOf(&GenResult{}).AssignableTo(mapperType.Out(0)) {
-		genResultOutput = true
-	}
-
-	return func(genParams *GenParameters) *GenResult {
-		result := g(genParams)
-		if genResultInput {
-			var mapped reflect.Value
-			if needsGenParameters {
-				mapped = mapperVal.Call([]reflect.Value{reflect.ValueOf(result), reflect.ValueOf(genParams)})[0]
-			} else {
-				mapped = mapperVal.Call([]reflect.Value{reflect.ValueOf(result)})[0]
-			}
-			if genResultOutput {
-				return mapped.Interface().(*GenResult)
-			}
-			return &GenResult{
-				Shrinker:   NoShrinker,
-				Result:     mapped.Interface(),
-				Labels:     result.Labels,
-				ResultType: mapperType.Out(0),
-			}
-		}
-		value, ok := result.RetrieveAsValue()
-		if ok {
-			var mapped reflect.Value
-			shrinker := NoShrinker
-			if needsGenParameters {
-				mapped = mapperVal.Call([]reflect.Value{value, reflect.ValueOf(genParams)})[0]
-			} else {
-				mapped = mapperVal.Call([]reflect.Value{value})[0]
-			}
-			if genResultOutput {
-				return mapped.Interface().(*GenResult)
-			}
-			if mapperType.In(0) == mapperType.Out(0) {
-				shrinker = result.Shrinker
-			}
-			return &GenResult{
-				Shrinker:   shrinker,
-				Result:     mapped.Interface(),
-				Labels:     result.Labels,
-				ResultType: mapperType.Out(0),
-			}
-		}
-		return &GenResult{
-			Shrinker:   NoShrinker,
-			Result:     nil,
-			Labels:     result.Labels,
-			ResultType: mapperType.Out(0),
-		}
-	}
-}
+func (g Gen) Map(f interface{}) Gen { _ = "STUB: not implemented"; return *new(Gen) }
 
 // FlatMap creates a derived generator by passing a generated value to a function which itself
 // creates a generator.
 func (g Gen) FlatMap(f func(interface{}) Gen, resultType reflect.Type) Gen {
-	return func(genParams *GenParameters) *GenResult {
-		result := g(genParams)
-		value, ok := result.Retrieve()
-		if ok {
-			return f(value)(genParams)
-		}
-		return &GenResult{
-			Shrinker:   NoShrinker,
-			Result:     nil,
-			Labels:     result.Labels,
-			ResultType: resultType,
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(Gen)
 }
 
 // MapResult creates a derived generator by mapping the GenResult directly.
@@ -211,52 +61,12 @@ func (g Gen) FlatMap(f func(interface{}) Gen, resultType reflect.Type) Gen {
 // shrinkers and sieves, but implementation is more cumbersome.
 // Deprecation note: Map now has the same functionality
 func (g Gen) MapResult(f func(*GenResult) *GenResult) Gen {
-	return func(genParams *GenParameters) *GenResult {
-		return f(g(genParams))
-	}
+	_ = "STUB: not implemented"
+	return *new(Gen)
 }
 
 // CombineGens creates a generator from a list of generators.
 // The result type will be a []interface{} containing the generated values of each generators in
 // the list.
 // Note: The combined generator will not have a sieve or shrinker.
-func CombineGens(gens ...Gen) Gen {
-	return func(genParams *GenParameters) *GenResult {
-		labels := []string{}
-		values := make([]interface{}, len(gens))
-		shrinkers := make([]Shrinker, len(gens))
-		sieves := make([]func(v interface{}) bool, len(gens))
-
-		var ok bool
-		for i, gen := range gens {
-			result := gen(genParams)
-			labels = append(labels, result.Labels...)
-			shrinkers[i] = result.Shrinker
-			sieves[i] = result.Sieve
-			values[i], ok = result.Retrieve()
-			if !ok {
-				return &GenResult{
-					Shrinker:   NoShrinker,
-					Result:     nil,
-					Labels:     result.Labels,
-					ResultType: reflect.TypeOf(values),
-				}
-			}
-		}
-		return &GenResult{
-			Shrinker:   CombineShrinker(shrinkers...),
-			Result:     values,
-			Labels:     labels,
-			ResultType: reflect.TypeOf(values),
-			Sieve: func(v interface{}) bool {
-				values := v.([]interface{})
-				for i, value := range values {
-					if sieves[i] != nil && !sieves[i](value) {
-						return false
-					}
-				}
-				return true
-			},
-		}
-	}
-}
+func CombineGens(gens ...Gen) Gen { _ = "STUB: not implemented"; return *new(Gen) }

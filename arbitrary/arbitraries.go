@@ -2,10 +2,8 @@ package arbitrary
 
 import (
 	"reflect"
-	"time"
 
 	"github.com/leanovate/gopter"
-	"github.com/leanovate/gopter/gen"
 )
 
 // Arbitraries defines a context to generate arbitrary values of any kind.
@@ -17,26 +15,13 @@ type Arbitraries struct {
 
 // DefaultArbitraries creates a default arbitrary context with the widest
 // possible ranges for all types.
-func DefaultArbitraries() *Arbitraries {
-	return &Arbitraries{
-		generators: map[reflect.Type]gopter.Gen{
-			reflect.TypeOf(time.Time{}):  gen.Time(),
-			reflect.TypeOf(&time.Time{}): gen.PtrOf(gen.Time()),
-		},
-	}
-}
+func DefaultArbitraries() *Arbitraries { _ = "STUB: not implemented"; return nil }
 
 // GenForType gets a generator for a generator for a type
 func (a *Arbitraries) GenForType(rt reflect.Type) gopter.Gen {
-	if gen, ok := a.generators[rt]; ok {
-		return gen
-	}
-	return a.genForKind(rt)
+	_ = "STUB: not implemented"
+	return *new(gopter.Gen)
 }
 
 // RegisterGen registers a generator
-func (a *Arbitraries) RegisterGen(gen gopter.Gen) {
-	result := gen(gopter.MinGenParams)
-	rt := result.ResultType
-	a.generators[rt] = gen
-}
+func (a *Arbitraries) RegisterGen(gen gopter.Gen) { _ = "STUB: not implemented"; return }

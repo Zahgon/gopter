@@ -1,158 +1,67 @@
 package gen
 
 import (
-	"reflect"
 	"unicode"
-	"unicode/utf8"
 
 	"github.com/leanovate/gopter"
 )
 
 // RuneRange generates runes within a given range
-func RuneRange(min, max rune) gopter.Gen {
-	return genRune(Int64Range(int64(min), int64(max)))
-}
+func RuneRange(min, max rune) gopter.Gen { _ = "STUB: not implemented"; return *new(gopter.Gen) }
 
 // Rune generates an arbitrary character rune
-func Rune() gopter.Gen {
-	return genRune(Frequency(map[int]gopter.Gen{
-		0xD800:                Int64Range(0, 0xD800),
-		utf8.MaxRune - 0xDFFF: Int64Range(0xDFFF, int64(utf8.MaxRune)),
-	}))
-}
+func Rune() gopter.Gen { _ = "STUB: not implemented"; return *new(gopter.Gen) }
 
 // RuneNoControl generates an arbitrary character rune that is not a control character
-func RuneNoControl() gopter.Gen {
-	return genRune(Frequency(map[int]gopter.Gen{
-		0xD800:                Int64Range(32, 0xD800),
-		utf8.MaxRune - 0xDFFF: Int64Range(0xDFFF, int64(utf8.MaxRune)),
-	}))
-}
+func RuneNoControl() gopter.Gen { _ = "STUB: not implemented"; return *new(gopter.Gen) }
 
-func genRune(int64Gen gopter.Gen) gopter.Gen {
-	return int64Gen.Map(func(value int64) rune {
-		return rune(value)
-	}).SuchThat(func(v rune) bool {
-		return utf8.ValidRune(v)
-	})
-}
+func genRune(int64Gen gopter.Gen) gopter.Gen { _ = "STUB: not implemented"; return *new(gopter.Gen) }
 
 // NumChar generates arbitrary numberic character runes
-func NumChar() gopter.Gen {
-	return RuneRange('0', '9')
-}
+func NumChar() gopter.Gen { _ = "STUB: not implemented"; return *new(gopter.Gen) }
 
 // AlphaUpperChar generates arbitrary uppercase alpha character runes
-func AlphaUpperChar() gopter.Gen {
-	return RuneRange('A', 'Z')
-}
+func AlphaUpperChar() gopter.Gen { _ = "STUB: not implemented"; return *new(gopter.Gen) }
 
 // AlphaLowerChar generates arbitrary lowercase alpha character runes
-func AlphaLowerChar() gopter.Gen {
-	return RuneRange('a', 'z')
-}
+func AlphaLowerChar() gopter.Gen { _ = "STUB: not implemented"; return *new(gopter.Gen) }
 
 // AlphaChar generates arbitrary character runes (upper- and lowercase)
-func AlphaChar() gopter.Gen {
-	return Frequency(map[int]gopter.Gen{
-		0: AlphaUpperChar(),
-		9: AlphaLowerChar(),
-	})
-}
+func AlphaChar() gopter.Gen { _ = "STUB: not implemented"; return *new(gopter.Gen) }
 
 // AlphaNumChar generates arbitrary alpha-numeric character runes
-func AlphaNumChar() gopter.Gen {
-	return Frequency(map[int]gopter.Gen{
-		0: NumChar(),
-		9: AlphaChar(),
-	})
-}
+func AlphaNumChar() gopter.Gen { _ = "STUB: not implemented"; return *new(gopter.Gen) }
 
 // UnicodeChar generates arbitrary character runes with a given unicode table
 func UnicodeChar(table *unicode.RangeTable) gopter.Gen {
-	if table == nil || len(table.R16)+len(table.R32) == 0 {
-		return Fail(reflect.TypeOf(rune('a')))
-	}
-	return func(genParams *gopter.GenParameters) *gopter.GenResult {
-		tableIdx := genParams.Rng.Intn(len(table.R16) + len(table.R32))
-
-		var selectedRune rune
-		if tableIdx < len(table.R16) {
-			r := table.R16[tableIdx]
-			runeOffset := uint16(genParams.Rng.Int63n(int64((r.Hi-r.Lo+1)/r.Stride))) * r.Stride
-			selectedRune = rune(runeOffset + r.Lo)
-		} else {
-			r := table.R32[tableIdx-len(table.R16)]
-			runeOffset := uint32(genParams.Rng.Int63n(int64((r.Hi-r.Lo+1)/r.Stride))) * r.Stride
-			selectedRune = rune(runeOffset + r.Lo)
-		}
-		genResult := gopter.NewGenResult(selectedRune, gopter.NoShrinker)
-		genResult.Sieve = func(v interface{}) bool {
-			return unicode.Is(table, v.(rune))
-		}
-		return genResult
-	}
+	_ = "STUB: not implemented"
+	return *new(gopter.Gen)
 }
 
 // AnyString generates an arbitrary string
-func AnyString() gopter.Gen {
-	return genString(Rune(), utf8.ValidRune)
-}
+func AnyString() gopter.Gen { _ = "STUB: not implemented"; return *new(gopter.Gen) }
 
 // AlphaString generates an arbitrary string with letters
-func AlphaString() gopter.Gen {
-	return genString(AlphaChar(), unicode.IsLetter)
-}
+func AlphaString() gopter.Gen { _ = "STUB: not implemented"; return *new(gopter.Gen) }
 
 // NumString generates an arbitrary string with digits
-func NumString() gopter.Gen {
-	return genString(NumChar(), unicode.IsDigit)
-}
+func NumString() gopter.Gen { _ = "STUB: not implemented"; return *new(gopter.Gen) }
 
 // Identifier generates an arbitrary identifier string
 // Identitiers are supporsed to start with a lowercase letter and contain only
 // letters and digits
-func Identifier() gopter.Gen {
-	return gopter.CombineGens(
-		AlphaLowerChar(),
-		SliceOf(AlphaNumChar()),
-	).Map(func(values []interface{}) string {
-		first := values[0].(rune)
-		tail := values[1].([]rune)
-		result := make([]rune, 0, len(tail)+1)
-		return string(append(append(result, first), tail...))
-	}).SuchThat(func(str string) bool {
-		if len(str) < 1 || !unicode.IsLower(([]rune(str))[0]) {
-			return false
-		}
-		for _, ch := range str {
-			if !unicode.IsLetter(ch) && !unicode.IsDigit(ch) {
-				return false
-			}
-		}
-		return true
-	}).WithShrinker(StringShrinker)
-}
+func Identifier() gopter.Gen { _ = "STUB: not implemented"; return *new(gopter.Gen) }
 
 // UnicodeString generates an arbitrary string from a given
 // unicode table.
 func UnicodeString(table *unicode.RangeTable) gopter.Gen {
-	return genString(UnicodeChar(table), func(ch rune) bool {
-		return unicode.Is(table, ch)
-	})
+	_ = "STUB: not implemented"
+	return *new(gopter.Gen)
 }
 
 func genString(runeGen gopter.Gen, runeSieve func(ch rune) bool) gopter.Gen {
-	return SliceOf(runeGen).Map(runesToString).SuchThat(func(v string) bool {
-		for _, ch := range v {
-			if !runeSieve(ch) {
-				return false
-			}
-		}
-		return true
-	}).WithShrinker(StringShrinker)
+	_ = "STUB: not implemented"
+	return *new(gopter.Gen)
 }
 
-func runesToString(v []rune) string {
-	return string(v)
-}
+func runesToString(v []rune) string { _ = "STUB: not implemented"; return "" }

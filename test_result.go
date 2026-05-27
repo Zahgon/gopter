@@ -18,21 +18,7 @@ const (
 	TestError
 )
 
-func (s testStatus) String() string {
-	switch s {
-	case TestPassed:
-		return "PASSED"
-	case TestProved:
-		return "PROVED"
-	case TestFailed:
-		return "FAILED"
-	case TestExhausted:
-		return "EXHAUSTED"
-	case TestError:
-		return "ERROR"
-	}
-	return ""
-}
+func (s testStatus) String() string { _ = "STUB: not implemented"; return "" }
 
 // TestResult contains the result of a property property check.
 type TestResult struct {
@@ -47,6 +33,4 @@ type TestResult struct {
 }
 
 // Passed checks if the check has passed
-func (r *TestResult) Passed() bool {
-	return r.Status == TestPassed || r.Status == TestProved
-}
+func (r *TestResult) Passed() bool { _ = "STUB: not implemented"; return false }

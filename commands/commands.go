@@ -1,11 +1,7 @@
 package commands
 
 import (
-	"reflect"
-
 	"github.com/leanovate/gopter"
-	"github.com/leanovate/gopter/gen"
-	"github.com/leanovate/gopter/prop"
 )
 
 // Commands provide an entry point for testing a stateful system
@@ -37,48 +33,33 @@ type ProtoCommands struct {
 
 // NewSystemUnderTest should create a new/isolated system under test
 func (p *ProtoCommands) NewSystemUnderTest(initialState State) SystemUnderTest {
-	if p.NewSystemUnderTestFunc != nil {
-		return p.NewSystemUnderTestFunc(initialState)
-	}
-	return nil
+	_ = "STUB: not implemented"
+	return *new(SystemUnderTest)
 }
 
 // DestroySystemUnderTest may perform any cleanup tasks to destroy a system
 func (p *ProtoCommands) DestroySystemUnderTest(systemUnderTest SystemUnderTest) {
-	if p.DestroySystemUnderTestFunc != nil {
-		p.DestroySystemUnderTestFunc(systemUnderTest)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // GenCommand provides a generator for applicable commands to for a state
 func (p *ProtoCommands) GenCommand(state State) gopter.Gen {
-	if p.GenCommandFunc != nil {
-		return p.GenCommandFunc(state)
-	}
-	return gen.Fail(reflect.TypeOf((*Command)(nil)).Elem())
+	_ = "STUB: not implemented"
+	return *new(gopter.Gen)
 }
 
 // GenInitialState provides a generator for the initial State
 func (p *ProtoCommands) GenInitialState() gopter.Gen {
-	return p.InitialStateGen.SuchThat(func(state State) bool {
-		return p.InitialPreCondition(state)
-	})
+	_ = "STUB: not implemented"
+	return *new(gopter.Gen)
 }
 
 // InitialPreCondition checks if the initial state is valid
 func (p *ProtoCommands) InitialPreCondition(state State) bool {
-	if p.InitialPreConditionFunc != nil {
-		return p.InitialPreConditionFunc(state)
-	}
-	return true
+	_ = "STUB: not implemented"
+	return false
 }
 
 // Prop creates a gopter.Prop from Commands
-func Prop(commands Commands) gopter.Prop {
-	return prop.ForAll(func(actions *actions) *gopter.PropResult {
-		systemUnderTest := commands.NewSystemUnderTest(actions.initialStateProvider())
-		defer commands.DestroySystemUnderTest(systemUnderTest)
-
-		return actions.run(systemUnderTest)
-	}, genActions(commands))
-}
+func Prop(commands Commands) gopter.Prop { _ = "STUB: not implemented"; return *new(gopter.Prop) }

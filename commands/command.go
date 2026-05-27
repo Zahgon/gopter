@@ -37,36 +37,20 @@ type ProtoCommand struct {
 
 // Run applies the command to the system under test
 func (p *ProtoCommand) Run(systemUnderTest SystemUnderTest) Result {
-	if p.RunFunc != nil {
-		return p.RunFunc(systemUnderTest)
-	}
-	return nil
+	_ = "STUB: not implemented"
+	return *new(Result)
 }
 
 // NextState calculates the next expected state if the command is applied
-func (p *ProtoCommand) NextState(state State) State {
-	if p.NextStateFunc != nil {
-		return p.NextStateFunc(state)
-	}
-	return state
-}
+func (p *ProtoCommand) NextState(state State) State { _ = "STUB: not implemented"; return *new(State) }
 
 // PreCondition checks if the state is valid before the command is applied
-func (p *ProtoCommand) PreCondition(state State) bool {
-	if p.PreConditionFunc != nil {
-		return p.PreConditionFunc(state)
-	}
-	return true
-}
+func (p *ProtoCommand) PreCondition(state State) bool { _ = "STUB: not implemented"; return false }
 
 // PostCondition checks if the state is valid after the command is applied
 func (p *ProtoCommand) PostCondition(state State, result Result) *gopter.PropResult {
-	if p.PostConditionFunc != nil {
-		return p.PostConditionFunc(state, result)
-	}
-	return &gopter.PropResult{Status: gopter.PropTrue}
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (p *ProtoCommand) String() string {
-	return p.Name
-}
+func (p *ProtoCommand) String() string { _ = "STUB: not implemented"; return "" }
